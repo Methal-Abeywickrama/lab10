@@ -59,7 +59,7 @@ maze = [
     {'N': True, 'E': True, 'S': False, 'W':False},{'N': False, 'E': True, 'S': False, 'W':True}, {'N': False, 'E': False, 'S': True, 'W':True}, {'N': True, 'E': False, 'S': True, 'W':False}, 
     {'N': True, 'E': True, 'S': False, 'W':False}, {'N': True, 'E': True, 'S': False, 'W':True} ],
 
-  [ {'N': True, 'E': False, 'S': True, 'W':False}, {'N': True, 'E': True, 'S': False, 'W':False}, {'N': True, 'E': True, 'S': False, 'W': True}, {'N': True, 'E': False, 'S': True, 'W':False},
+  [ {'N': True, 'E': False, 'S': True, 'W':False}, {'N': True, 'E': True, 'S': False, 'W':False}, {'N': True, 'E': False, 'S': False, 'W': True}, {'N': True, 'E': False, 'S': True, 'W':False},
     {'N': True, 'E': True, 'S': False, 'W':False}, {'N': False, 'E': True, 'S': True, 'W': True}, {'N': False, 'E': False, 'S': False, 'W':True}, {'N': True, 'E': False, 'S': False, 'W':False},
     {'N': False, 'E': True, 'S': True, 'W':False},{'N': False, 'E': True, 'S': False, 'W':True}, {'N': True, 'E': False, 'S': False, 'W':True}, {'N': True, 'E': True, 'S': False, 'W':False}, 
     {'N': False, 'E': False, 'S': False, 'W':True}, {'N': False, 'E': False, 'S': True, 'W':False} ],
@@ -71,8 +71,25 @@ maze = [
   
 ]
 
+class FoundFinal(Exception):
+    pass
+
+
 def within_range(num):
   return True if num <= 13 and num >= 0 else False
+
+def find_move(first_square, next_square):
+
+  if first_square[0] < next_square[0]:
+    return 'South'
+  if first_square[0] > next_square[0]:
+    return 'North'
+  if first_square[1] > next_square[1]:
+    return 'West'
+  if first_square[1] < next_square[1]:
+    return 'East'
+
+steps = 0
 
 def traverse(node, start = False):
   
@@ -94,44 +111,45 @@ def traverse(node, start = False):
     dead_end = False
   
   print(node)
-  print(row)
-  print(column)
   if node['cell'] == [11, 13]:
-    return
+    node['history'].append(node['cell'])
+    node['moves'].append(find_move(node['history'][-2], node['cell']))
+    print('move is ')
+    print(find_move(node['history'][-2], node['cell']))
+    raise FoundFinal(node)
+
   elif dead_end:
-    try:
-      print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
-      print(f'back to {node['history'][-1]}')
-      print('before popping')
-      # print(node)
-      # node['history'].pop(-1)
-      # node['queue'].pop(-1)
-      # print('after popping')
-      # print(node)
-      # print(node['cell'] == [0, 3])
-      # if node['cell'] == [0, 3]:
-      #   #breakpoint()
-      #   pass
-    except:
-      breakpoint()
-    
-    if not len(node['moves']) == 0:
-      node['moves'].pop() 
+    print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
+    print(f'back to {node['history'][-1]}')
+    print('before popping')
+    global steps
+    for i in range(steps):
+      node['moves'].pop()
+      node['history'].pop()
+    steps = 0
   else:
     for i in range(len(node['queue'])):
       new_history = node['history']
       new_history.append(node['cell'])
-      new_node = {'cell': node['queue'][-1], 'history': new_history, 'queue': [], 'moves': []}
-      #node['cell'] = node['queue'][-1]
+      new_moves = node['moves']
+      new_moves.append(find_move(node['cell'], node['queue'][-1]))
+      print(f'stesps are {steps}')
+      new_node = {'cell': node['queue'][-1], 'history': new_history, 'queue': [], 'moves': new_moves, 'steps': node['steps'] + 1}
       node['queue'].pop(-1)
       traverse(new_node)
-      print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
-      print(f'back to {node['history'][-1]}')
+
+
+      #print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
+      #print(f'back to {node['history'][-1]}')
 
   
 
-node = {'cell': [2, 0], 'history': [], 'queue': [], 'moves': []}
-traverse(node)
+node = {'cell': [2, 0], 'history': [], 'queue': [], 'moves': [], 'steps': 0}
+try:
+  traverse(node)
+except FoundFinal as e:
+  print('found a path')
+  print(e)
 
 
 print(f'Start at ({node['cell'][0]}, {node['cell'][1]})')

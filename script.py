@@ -92,6 +92,7 @@ def find_move(first_square, next_square):
 steps = 0
 
 def traverse(node, start = False):
+  global steps
   
   
   row = node['cell'][0]
@@ -110,31 +111,38 @@ def traverse(node, start = False):
     node['queue'].append([row-1, column])
     dead_end = False
   
-  print(node)
+  #print(node)
   if node['cell'] == [11, 13]:
     node['history'].append(node['cell'])
-    node['moves'].append(find_move(node['history'][-2], node['cell']))
-    print('move is ')
+    #print('move is ')
     print(find_move(node['history'][-2], node['cell']))
     raise FoundFinal(node)
 
   elif dead_end:
-    print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
-    print(f'back to {node['history'][-1]}')
-    print('before popping')
+    #print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
+    #print(f'back to {node['history'][-1]}')
+    #print('before popping')
     global steps
+    old_list = node['moves'].copy()
     for i in range(steps):
+      #print(node['moves'][-(i + 1)])
+      #print(node['history'][-(i + 1)])
       node['moves'].pop()
       node['history'].pop()
+    new_list = node['moves'].copy()
+
+    print(old_list[(len(new_list)):])
+    
     steps = 0
   else:
     for i in range(len(node['queue'])):
-      new_history = node['history']
+      new_history = node['history'].copy()
       new_history.append(node['cell'])
-      new_moves = node['moves']
+      new_moves = node['moves'].copy()
       new_moves.append(find_move(node['cell'], node['queue'][-1]))
-      print(f'stesps are {steps}')
+      #print(f'stesps are {steps}')
       new_node = {'cell': node['queue'][-1], 'history': new_history, 'queue': [], 'moves': new_moves, 'steps': node['steps'] + 1}
+      steps += 1
       node['queue'].pop(-1)
       traverse(new_node)
 

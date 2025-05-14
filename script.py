@@ -90,9 +90,11 @@ def find_move(first_square, next_square):
     return 'East'
 
 steps = 0
+lines = []
 
 def traverse(node, start = False):
   global steps
+  global lines
   
   
   row = node['cell'][0]
@@ -111,53 +113,56 @@ def traverse(node, start = False):
     node['queue'].append([row-1, column])
     dead_end = False
   
-  #print(node)
   if node['cell'] == [11, 13]:
     node['history'].append(node['cell'])
-    #print('move is ')
-    print(find_move(node['history'][-2], node['cell']))
+    old_moves_list = node['moves'].copy()
+    for i in range(steps):
+      node['moves'].pop()
+    new_moves_list = node['moves'].copy()
+    difference = old_moves_list[(len(new_moves_list)):]
+    lines.append(' '.join(difference) + f' Leaving at ( 11 , 13 )')
     raise FoundFinal(node)
 
   elif dead_end:
-    #print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
-    #print(f'back to {node['history'][-1]}')
-    #print('before popping')
-    global steps
-    old_list = node['moves'].copy()
+    if steps == 1:
+      print(f'stuck at {node['cell']}')
+    old_moves_list = node['moves'].copy()
     for i in range(steps):
-      #print(node['moves'][-(i + 1)])
-      #print(node['history'][-(i + 1)])
       node['moves'].pop()
-      node['history'].pop()
-    new_list = node['moves'].copy()
+    new_moves_list = node['moves'].copy()
 
-    print(old_list[(len(new_list)):])
-    
+    difference = old_moves_list[(len(new_moves_list)):]
+
+    lines.pop()
+    lines.append(' '.join(difference) + f' stuck at ( {row} , {column} )')
+
     steps = 0
+    return False
   else:
     for i in range(len(node['queue'])):
       new_history = node['history'].copy()
       new_history.append(node['cell'])
       new_moves = node['moves'].copy()
       new_moves.append(find_move(node['cell'], node['queue'][-1]))
-      #print(f'stesps are {steps}')
       new_node = {'cell': node['queue'][-1], 'history': new_history, 'queue': [], 'moves': new_moves, 'steps': node['steps'] + 1}
       steps += 1
       node['queue'].pop(-1)
-      traverse(new_node)
-
-
-      #print(' '.join(node['moves']) + f' stuck at ( {row} , {column} )')
-      #print(f'back to {node['history'][-1]}')
+      stuck_not_printed = traverse(new_node)
+      lines.append(f'Back to ({node['cell'][0]} , {node['cell'][0]})')
+      if not stuck_not_printed:
+        lines.append(f'Stuck at ({node['cell'][0]} , {node['cell'][0]})')
 
   
 
 node = {'cell': [2, 0], 'history': [], 'queue': [], 'moves': [], 'steps': 0}
 try:
+  lines.append('start here')
   traverse(node)
 except FoundFinal as e:
   print('found a path')
-  print(e)
 
-
+lines.pop(-2)
 print(f'Start at ({node['cell'][0]}, {node['cell'][1]})')
+
+for line in lines:
+  print(line)

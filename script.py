@@ -130,7 +130,7 @@ def traverse(node, start = False):
     difference = old_moves_list[(len(new_moves_list)):]
 
     lines.pop()
-    lines.append(' '.join(difference) + f' stuck at ( {row} , {column} )')
+    lines.append(' '.join(difference) + f' Stuck at ( {row} , {column} )')
 
     steps = 0
     return False
@@ -144,9 +144,9 @@ def traverse(node, start = False):
       steps += 1
       node['queue'].pop(-1)
       stuck_not_printed = traverse(new_node)
-      lines.append(f'Back to ({node["cell"][0]} , {node["cell"][1]})')
+      lines.append(f'Back to ( {node["cell"][0]} , {node["cell"][1]} )')
       if not stuck_not_printed:
-        lines.append(f'Stuck at ({node["cell"][0]} , {node["cell"][1]})')
+        lines.append(f'Stuck at ( {node["cell"][0]} , {node["cell"][1]} )')
 
 node = {'cell': [2, 0], 'history': [], 'queue': [], 'moves': [], 'steps': 0}
 try:
@@ -156,7 +156,7 @@ except FoundFinal as e:
   pass
 
 lines.pop(-2)
-print(f'Start at ({node["cell"][0]}, {node["cell"][1]})')
+print(f'Start at ( {node["cell"][0]} , {node["cell"][1]} )')
 
 for line in lines:
   print(line)

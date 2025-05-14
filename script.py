@@ -74,7 +74,6 @@ maze = [
 class FoundFinal(Exception):
     pass
 
-
 def within_range(num):
   return True if num <= 13 and num >= 0 else False
 
@@ -95,7 +94,6 @@ lines = []
 def traverse(node, start = False):
   global steps
   global lines
-  
   
   row = node['cell'][0]
   column = node['cell'][1]
@@ -124,8 +122,6 @@ def traverse(node, start = False):
     raise FoundFinal(node)
 
   elif dead_end:
-    if steps == 1:
-      print(f'stuck at {node['cell']}')
     old_moves_list = node['moves'].copy()
     for i in range(steps):
       node['moves'].pop()
@@ -152,14 +148,12 @@ def traverse(node, start = False):
       if not stuck_not_printed:
         lines.append(f'Stuck at ({node['cell'][0]} , {node['cell'][0]})')
 
-  
-
 node = {'cell': [2, 0], 'history': [], 'queue': [], 'moves': [], 'steps': 0}
 try:
   lines.append('start here')
   traverse(node)
 except FoundFinal as e:
-  print('found a path')
+  pass
 
 lines.pop(-2)
 print(f'Start at ({node['cell'][0]}, {node['cell'][1]})')
